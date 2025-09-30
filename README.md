@@ -11,18 +11,7 @@ This is a complete self-contained script that includes:
 - Sending requests to compiler service
 - Processing compilation results
 
-### 2. `test_inference_script.py` - Test Inference Script
-This is a simplified version for testing only:
-- Model loading and vLLM inference
-- Save results to JSON file
-- No compiler integration
-
 ## Usage
-
-### Test Inference (Recommended to run first)
-```bash
-python test_inference_script.py
-```
 
 ### Complete Inference (with compiler)
 ```bash
@@ -81,12 +70,6 @@ model_path = "Goedel-LM/Goedel-Prover-V2-8B"
 
 # Or other models
 model_path = "Goedel-LM/Goedel-Prover-V2-32B"
-```
-
-#### Option 3: Custom Model Path
-Replace with your own model path:
-```python
-model_path = "/path/to/your/model"
 ```
 
 **Note**: When using Hugging Face models, the script will automatically download the model on first run. Make sure you have sufficient disk space and internet connection.
