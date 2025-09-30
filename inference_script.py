@@ -320,51 +320,82 @@ The plan should highlight key ideas, intermediate lemmas, and proof structures t
     
     # Process outputs
     solution_strs = []
+    print("\n" + "="*80)
+    print("GENERATED SOLUTIONS:")
+    print("="*80)
+    
     for i, output in enumerate(outputs[0].outputs):
         # Combine input and output
         full_solution = formatted_prompt + output.text
         solution_strs.append(full_solution)
-        print(f"Generated solution {i+1} length: {len(output.text)} characters")
-        print(f"First 200 chars: {output.text[:200]}...")
+        print(f"\nSolution #{i+1}:")
+        print("-"*40)
+        print(f"Length: {len(output.text)} characters")
+        print("\nOutput text:")
+        print("-"*20)
+        # Print full output with line breaks for readability
+        print(output.text)
+        print("-"*40)
     
-    print(f"Generated {len(solution_strs)} solutions")
+    print(f"\nTotal solutions generated: {len(solution_strs)}\n")
     
     # Process solution strings to extract Lean code
-    print("Processing solution strings...")
+    print("Processing solution strings to extract Lean code...")
     code_to_compile_list = process_solution_strings(solution_strs)
     
-    print(f"Extracted {len(code_to_compile_list)} code blocks for compilation")
+    print("\n" + "="*80)
+    print("EXTRACTED LEAN CODE:")
+    print("="*80)
+    print(f"\nExtracted {len(code_to_compile_list)} code blocks")
     
     # Filter out empty code blocks
     valid_codes = [code for code in code_to_compile_list if code.strip()]
     print(f"Valid code blocks: {len(valid_codes)}")
     
+    for i, code in enumerate(valid_codes):
+        print(f"\nCode Block #{i+1}:")
+        print("-"*40)
+        print(code)
+        print("-"*40)
+    
     if valid_codes:
-        print("Sending codes to compiler...")
+        print("\nSending codes to compiler...")
         # Send to compiler
         compiled_results = compile_lean(valid_codes)
         
         if compiled_results:
-            print(f"Received {len(compiled_results)} compilation results")
+            print("\n" + "="*80)
+            print("COMPILATION RESULTS:")
+            print("="*80)
+            print(f"\nReceived {len(compiled_results)} compilation results\n")
             
             # Analyze results
             successful_compilations = 0
-            for result in compiled_results:
+            for i, result in enumerate(compiled_results):
+                print(f"\nResult #{i+1}: {result['name']}")
+                print("-"*40)
+                
                 if result['compilation_result']['pass'] and result['compilation_result']['complete']:
                     successful_compilations += 1
-                    print(f"✅ Successful compilation: {result['name']}")
+                    print("✅ Status: Compilation Successful")
                 else:
-                    print(f"❌ Failed compilation: {result['name']}")
+                    print("❌ Status: Compilation Failed")
                     if 'errors' in result['compilation_result']:
-                        print(f"   Errors: {len(result['compilation_result']['errors'])}")
+                        print(f"\nErrors ({len(result['compilation_result']['errors'])}):")
+                        for error in result['compilation_result']['errors']:
+                            print(f"- {error}")
+                print("-"*40)
             
-            print(f"Success rate: {successful_compilations}/{len(compiled_results)} ({successful_compilations/len(compiled_results)*100:.1f}%)")
+            print(f"\nFinal Success Rate: {successful_compilations}/{len(compiled_results)}")
+            print(f"Success Percentage: {successful_compilations/len(compiled_results)*100:.1f}%")
         else:
-            print("No compilation results received")
+            print("\n❌ No compilation results received")
     else:
-        print("No valid code blocks to compile")
+        print("\n❌ No valid code blocks to compile")
     
-    print("Script completed!")
+    print("\n" + "="*80)
+    print("SCRIPT COMPLETED")
+    print("="*80 + "\n")
 
 
 if __name__ == "__main__":

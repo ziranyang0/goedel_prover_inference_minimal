@@ -31,6 +31,33 @@ python inference_script.py
 
 ## Dependencies
 
+### Conda Environment Setup (Recommended)
+Based on [verl installation guide](https://verl.readthedocs.io/en/latest/start/install.html):
+
+```bash
+# Create conda environment (Python >= 3.10 required for verl)
+conda create -n verl-inference python=3.10 -y
+conda activate verl-inference
+
+# Install verl dependencies using the provided script
+# For FSDP backend only (recommended for inference)
+USE_MEGATRON=0 bash scripts/install_vllm_sglang_mcore.sh
+
+# Or for full verl with Megatron support
+bash scripts/install_vllm_sglang_mcore.sh
+
+# Install verl from source
+git clone https://github.com/volcengine/verl.git
+cd verl
+pip install --no-deps -e .
+```
+
+### System Requirements
+- **Python**: Version >= 3.10
+- **CUDA**: Version >= 12.1 (recommended >= 12.4)
+- **cuDNN**: Version >= 9.8.0
+
+### Alternative: Direct pip installation (Not recommended)
 ```bash
 pip install vllm transformers torch
 ```
@@ -38,10 +65,31 @@ pip install vllm transformers torch
 ## Configuration
 
 ### Model Path
-Hardcoded model path in the script:
+The model path can be configured in the script. You have several options:
+
+#### Option 1: Local Model (Current Configuration)
 ```python
 model_path = "/scratch/gpfs/PLI/yong/averaged_models_2/Qwen3-8B-A2_avg-0_90"
 ```
+This is a local 8B SFT model before RL training.
+
+#### Option 2: Hugging Face Models
+You can use any model from Hugging Face, for example:
+```python
+# Goedel-Prover-V2-8B (recommended for theorem proving)
+model_path = "Goedel-LM/Goedel-Prover-V2-8B"
+
+# Or other models
+model_path = "Goedel-LM/Goedel-Prover-V2-32B"
+```
+
+#### Option 3: Custom Model Path
+Replace with your own model path:
+```python
+model_path = "/path/to/your/model"
+```
+
+**Note**: When using Hugging Face models, the script will automatically download the model on first run. Make sure you have sufficient disk space and internet connection.
 
 ### Compiler Service
 Ensure the following directories exist:
@@ -95,6 +143,24 @@ llm = LLM(
 2. **Insufficient GPU memory**: Reduce `gpu_memory_utilization` or `max_model_len`
 3. **Compiler service unavailable**: Check if request/response directories exist
 4. **Empty generation results**: Check input format and model configuration
+5. **Conda environment issues**: 
+   - Ensure conda is properly installed
+   - Activate the environment: `conda activate verl-inference`
+   - Check Python version: `python --version` (should be >= 3.10)
+   - Verify CUDA installation: `nvidia-smi`
+6. **Package installation failures**:
+   - Update conda: `conda update conda`
+   - Clear conda cache: `conda clean --all`
+   - Try installing packages individually
+7. **verl installation issues**:
+   - Ensure CUDA >= 12.1 is installed
+   - Check if verl installation script completed successfully
+   - Verify vLLM installation: `python -c "import vllm"`
+   - For vLLM issues, try: `VLLM_USE_V1=1` environment variable
+8. **Dependency conflicts**:
+   - Use fresh conda environment as recommended by verl
+   - Install inference frameworks first before other packages
+   - Check package versions: `pip list | grep torch`
 
 ## Notes
 
@@ -102,3 +168,9 @@ llm = LLM(
 - Check if compiler service is running
 - Monitor generation time and memory usage
 - Verify generated Lean code format
+- Always activate conda environment before running scripts: `conda activate verl-inference`
+- Ensure CUDA is properly installed and accessible
+- For optimal vLLM performance, set `VLLM_USE_V1=1` environment variable
+- Follow verl installation guide for proper dependency management
+- Use fresh conda environment to avoid package conflicts
+- Refer to [verl documentation](https://verl.readthedocs.io/en/latest/start/install.html) for detailed installation instructions
